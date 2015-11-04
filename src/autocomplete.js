@@ -18,6 +18,7 @@ var AutoComplete = (function () {
                     method:    "GET",
                     noResult:  "No result",
                     paramName: "q",
+                    delay:1000,
                     headers: {
                         "Content-type": "application/x-www-form-urlencoded"
                     },
@@ -113,6 +114,7 @@ var AutoComplete = (function () {
                         var oldValueLabel = "data-autocomplete-old-value",
                             result        = domCreate("div"),
                             request,
+                            requestCallbackId = 0,
                             positionLambda = function() {
                                 attr(result, {
                                     "class": "autocomplete",
@@ -191,7 +193,15 @@ var AutoComplete = (function () {
                                         attrClass(result, "autocomplete open");
                                     }
 
-                                    request = ajax(request, custParams, custParams.paramName + "=" + inputValue, input, result);
+                                    if (requestCallbackId > 0) {
+                                        clearTimeout(requestCallbackId);
+                                        requestCallbackId = 0;
+                                    }
+
+                                    requestCallbackId = setTimeout(function () {
+                                        request = ajax(request, custParams, custParams.paramName + "=" + inputValue, input, result);
+                                        requestCallbackId = 0;
+                                    }, custParams.delay);
                                 }
                             }
                         };
